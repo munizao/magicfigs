@@ -1,0 +1,5 @@
+[flake8]
+# Use the more relaxed max line length permitted in PEP8.
+max-line-length = 99
+extend-ignore = E3
+extend-ignore = E203
