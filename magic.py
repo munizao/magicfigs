@@ -7,8 +7,10 @@ from copy import copy
 def model_magic(board_dims, min_cell=1, **kwargs):
     cell_cnt = reduce(mul, board_dims, 1)
     max_cell = min_cell + cell_cnt - 1
-    total_sum = sum(range(min_cell, max_cell + 1))
-    magic_sums = [total_sum // board_dim for board_dim in board_dims]
+    twice_mean = min_cell + max_cell
+    # if twice_mean is odd, and a board_dim is odd, it's not gonna work
+    magic_sums = [twice_mean * board_dim // 2 for board_dim in board_dims]
+    print(magic_sums)
     lines = {}
     board = {}
     model = cp_model.CpModel()
@@ -28,7 +30,6 @@ def model_magic(board_dims, min_cell=1, **kwargs):
         dim_num = line_item[0].index(None)
         model.Add(sum(line_item[1]) == magic_sums[dim_num])
     model.AddAllDifferent(board.values())
-    print(lines)
     return model, board
 
 class SolutionPrinter(cp_model.CpSolverSolutionCallback):
@@ -37,7 +38,6 @@ class SolutionPrinter(cp_model.CpSolverSolutionCallback):
         self.board = board
     
     def OnSolutionCallback(self):
-        print("got here")
         print(self.board)
         for cell in self.board.values():
             print(self.Value(cell))
