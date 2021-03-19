@@ -1,3 +1,4 @@
-from magic import solve_magic
+from magic import MagicModel
 
-solve_magic((3,3,3))
+model = MagicModel((3,3,3))
+model.solve()
