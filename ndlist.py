@@ -1,24 +1,36 @@
 # Quick and dirty n-dimensional list. Didn't want to import numpy.
 
 from itertools import product
+from copy import copy, deepcopy
+from collections.abc import Iterable
 
 class ndlist(list):
+
+    def __init__(self, l, dims):
+        self.dims = dims
+        self.ranges = [range(dim) for dim in self.dims]
+        super().__init__(l)
+
     @classmethod
     def empty(cls, dims):
-        newlist = []
-        for cell in product(*[range(dim) for dim in dims]):
-            sublist = newlist
-            for i, coord in enumerate(cell):
-                if i < len(cell) - 1:
-                    if coord == 0:
-                        sublist.append([])
-                    sublist = sublist[coord]
-                else:
-                    sublist.append(None)
-        cls.__new__(newlist)
+        newlist = None
+        for dim in dims[::-1]:
+            newlist = [deepcopy(newlist) for _ in range(dim)]
+        newlist = cls(newlist, dims)
+        return newlist
 
     def __getitem__(self, index):
-        if iter(index):
+        if isinstance(index, Iterable):
+            if None in index:
+                # print("index:", index)
+                dim_num = index.index(None)
+                row = []
+                for i in range(self.dims[dim_num]):
+                    entry_index = list(index)
+                    entry_index[dim_num] = i
+                    # print("entry_index", entry_index)
+                    row.append(self[entry_index])
+                return row
             sublist = self
             for subindex in index:
                 sublist = sublist[subindex]
@@ -29,8 +41,17 @@ class ndlist(list):
         if iter(index):
             sublist = self
             for i, subindex in enumerate(index):
-                sublist = sublist[subindex]
+                # print("sublist:", sublist, "i:", i, "index:", index)
                 if i == len(index) - 1:
                     sublist[subindex] = newval
+                sublist = sublist[subindex]
         else:
             super().__setitem__(index, newval)
+    
+    def lines(self):
+        line_ranges_by_dims = []
+        for i in range(len(self.dims)):
+            line_ranges = copy(self.ranges)
+            line_ranges[i] = [None]
+            line_ranges_by_dims.append(line_ranges)
+        return [[self[line] for line in product(*lrs)] for lrs in line_ranges_by_dims]
