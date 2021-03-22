@@ -29,7 +29,7 @@ class SolPrinter(cp_model.CpSolverSolutionCallback):
 
 class MetaPrinter(SolPrinter):
     def __init__(self, board, subboard, type=int, int_width=2):
-        super().__init__(self, board, type, int_width)
+        super().__init__(board, type, int_width)
         self.subboard = subboard
     def OnSolutionCallback(self):
         self.print_board(self.board, len(self.board.dims), int)
