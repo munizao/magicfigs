@@ -5,7 +5,7 @@ from itertools import product
 from more_itertools import collapse
 from copy import copy
 from ndlist import ndlist
-from solprinters import IntPrinter
+from solprinters import SolPrinter
 
 class MagicModel(cp_model.CpModel):
     def __init__(self, dims, min_cell=1, **kwargs):
@@ -48,7 +48,7 @@ class MagicModel(cp_model.CpModel):
                 self.Add(sum(line) == self.magic_sums[dim_num])
         # print(collapse(self.board))
         self.AddAllDifferent(collapse(self.board))
-        self.solution_printer = IntPrinter(self.board)
+        self.solution_printer = SolPrinter(self.board)
 
     def solve(self, **kwargs):
         show_solutions = kwargs.get('show_solutions')
