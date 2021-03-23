@@ -6,5 +6,5 @@ from magic import MagicModel
 # sparse square.
 
 model = MagicModel((4, 4), min_cell=0)
-metaify(model, (3, 5), kitty_corners=True)
+metaify(model, (3, 5), kitty_corners=True, puddleless=True)
 model.solve()
