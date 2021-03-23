@@ -9,6 +9,7 @@ from ndlist import ndlist
 from solprinters import MetaPrinter
 
 def metaify(model, cell_dims, **kwargs):
+    kitty_corners = kwargs.get('kitty_corners')
     cell_size = reduce(mul, cell_dims, 1)
     subboard_dims = [model.dims[i] * cell_dims[i] for i in range(len(model.dims))]
     model.subboard = ndlist.empty(subboard_dims)
@@ -30,7 +31,6 @@ def metaify(model, cell_dims, **kwargs):
         for line in lines:
             model.Add(sum(line) == sub_magic_sums[dim_num])
     # cell constraints
-    print("cell_dims", cell_dims)
     ranges = [range(dim) for dim in model.board.dims]
     for cell_index in product(*ranges):
         print("cell_index", cell_index)
@@ -39,5 +39,15 @@ def metaify(model, cell_dims, **kwargs):
                             for i, dim in enumerate(cell_dims)]
         cell = [model.subboard[i] for i in product(*cell_ranges)]
         model.Add(sum(cell) == model.board[cell_index])
+    #only works in 2d
+    if kitty_corners:
+        for i in range(subboard_dims[0] - 1):
+            for j in range(subboard_dims[1] - 1):
+                corners = [[model.subboard[(i, j)], model.subboard[(i+1, j)]],
+                           [model.subboard[(i, j+1)], model.subboard[(i+1, j+1)]]]
+                model.Add((sum(collapse(corners)) != 2) or
+                          (corners[0][0] + corners[1][1] != 2) and
+                          (corners[0][0] + corners[1][1] != 0))
+    
     model.solution_printer = MetaPrinter(model.board, model.subboard)
 
