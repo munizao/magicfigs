@@ -17,7 +17,6 @@ class MagicModel(cp_model.CpModel):
         self.setup()
 
     def setup(self):
-
         twice_mean = self.min_cell + self.max_cell
         # if twice_mean is odd, and a board_dim is odd, it's not gonna work
         self.magic_sums = [twice_mean * board_dim // 2 for board_dim in self.dims]
@@ -31,6 +30,11 @@ class MagicModel(cp_model.CpModel):
             for line in lines:
                 self.Add(sum(line) == self.magic_sums[dim_num])
         self.AddAllDifferent(collapse(self.board))
+        # Remove redundant symmetries.  So far, this only catches reflections
+        origin = [0 for _ in self.dims]
+        for i in range(2 ** len(self.dims)):
+            corner = [(self.dims[n] - 1) * ((i >> n) % 2) for n in range(len(self.dims))]
+            self.Add(self.board[origin] <= self.board[corner])
         self.solution_printer = SolPrinter(self.board)
 
     def solve(self, **kwargs):
