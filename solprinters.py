@@ -21,7 +21,7 @@ class SolPrinter(cp_model.CpSolverSolutionCallback):
                         print('{0:{width}}'.format(self.Value(entry), width=self.int_width), 
                         end=" ")
                     elif type == bool:
-                        print('░', end='') if self.Value(entry) else print('█', end='')
+                        print('█', end='') if self.Value(entry) else print('░', end='')
                 print()
             
     def OnSolutionCallback(self):
