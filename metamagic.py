@@ -1,3 +1,5 @@
+# This is deprecated; metaify.py is intended to be more general
+
 from ortools.sat.python import cp_model
 
 def model_metamagic(meta_board, magic_sum, cell_dims, options={}):
