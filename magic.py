@@ -1,4 +1,4 @@
-from operator import mul
+from operator import index, mul
 from functools import reduce
 from ortools.sat.python import cp_model
 from itertools import product
@@ -13,6 +13,7 @@ class MagicModel(cp_model.CpModel):
         self.min_cell = min_cell
         cell_cnt = reduce(mul, self.dims, 1)
         self.max_cell = self.min_cell + cell_cnt - 1
+        self.diagonals = kwargs.get('diagonals')
         super().__init__()
         self.setup()
 
@@ -29,12 +30,20 @@ class MagicModel(cp_model.CpModel):
         for dim_num, lines in enumerate(self.board.lines()):
             for line in lines:
                 self.Add(sum(line) == self.magic_sums[dim_num])
+        if self.diagonals:
+            l = len(self.dims)
+            sign_lists = [[1- ((n >> i) % 2) * 2 for i in range(l)] for n in range(2 ** (l - 1))]
+            print(sign_lists)
+            for signs in sign_lists:
+                indices = [[i * sign - int(sign == -1)  for sign in signs] for i in range(l)]
+                print(indices)
+                self.Add(sum([self.board[index] for index in indices]) == self.magic_sums[0])
         self.AddAllDifferent(collapse(self.board))
         # Remove redundant symmetries.  So far, this only catches reflections
         origin = [0 for _ in self.dims]
-        for i in range(2 ** len(self.dims)):
+        for i in range(1, 2 ** len(self.dims)):
             corner = [(self.dims[n] - 1) * ((i >> n) % 2) for n in range(len(self.dims))]
-            self.Add(self.board[origin] <= self.board[corner])
+            self.Add(self.board[origin] < self.board[corner])
         self.solution_printer = SolPrinter(self.board)
 
     def solve(self, **kwargs):
