@@ -5,6 +5,6 @@ from magic import MagicModel
 # each number in the original square corresponds to a 3×5 cell in the corresponding 
 # sparse square.
 
-model = MagicModel((4, 4), min_cell=0)
+model = MagicModel((4, 4), min_cell=0, diagonals=True)
 metaify(model, (3, 5), kitty_corners=True, puddleless=True)
 model.solve()
