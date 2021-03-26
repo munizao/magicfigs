@@ -35,7 +35,7 @@ class MagicModel(cp_model.CpModel):
             sign_lists = [[1- ((n >> i) % 2) * 2 for i in range(l)] for n in range(2 ** (l - 1))]
             print(sign_lists)
             for signs in sign_lists:
-                indices = [[i * sign - int(sign == -1)  for sign in signs] for i in range(l)]
+                indices = [[i * sign - int(sign == -1)  for sign in signs] for i in range(self.dims[0])]
                 print(indices)
                 self.Add(sum([self.board[index] for index in indices]) == self.magic_sums[0])
         self.AddAllDifferent(collapse(self.board))
