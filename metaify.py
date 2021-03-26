@@ -11,6 +11,7 @@ from solprinters import MetaPrinter
 def metaify(model, cell_dims, **kwargs):
     kitty_corners = kwargs.get('kitty_corners')
     puddleless = kwargs.get('puddleless')
+    crinkles = kwargs.get('crinkles')
     cell_size = reduce(mul, cell_dims, 1)
     subboard_dims = [model.dims[i] * cell_dims[i] for i in range(len(model.dims))]
     model.subboard = ndlist.empty(subboard_dims)
@@ -34,21 +35,24 @@ def metaify(model, cell_dims, **kwargs):
     # cell constraints
     ranges = [range(dim) for dim in model.board.dims]
     for cell_index in product(*ranges):
-        print("cell_index", cell_index)
         cell_ranges = [range(cell_index[i] * dim,
                             (cell_index[i] + 1) * dim) 
                             for i, dim in enumerate(cell_dims)]
         cell = [model.subboard[i] for i in product(*cell_ranges)]
         model.Add(sum(cell) == model.board[cell_index])
     # only works in 2d. Absence of kitty corners is necessary for hole-free polyominoes
-    if kitty_corners:
+    if crinkles or kitty_corners:
         for i in range(subboard_dims[0] - 1):
             for j in range(subboard_dims[1] - 1):
-                corners = [[model.subboard[(i, j)], model.subboard[(i+1, j)]],
-                           [model.subboard[(i, j+1)], model.subboard[(i+1, j+1)]]]
-                model.Add((sum(collapse(corners)) != 2) or
-                          (corners[0][0] + corners[1][1] != 2) and
-                          (corners[0][0] + corners[1][1] != 0))
+                corners = [model.subboard[(i, j)], model.subboard[(i+1, j)],
+                           model.subboard[(i, j+1)], model.subboard[(i+1, j+1)]]
+                if crinkles:
+                    model.Add((sum(corners) != 2))
+                if kitty_corners:
+                    model.Add(sum([(2 ** i) * corner for i, corner in enumerate(corners)]) != 6)
+                    model.Add(sum([(2 ** i) * corner for i, corner in enumerate(corners)]) != 9)
+
+
     # Filter out 1 unit puddles and islands
     if puddleless:
         for i in range(1, subboard_dims[0] - 1):
@@ -57,5 +61,28 @@ def metaify(model, cell_dims, **kwargs):
                              model.subboard[(i, j-1)], model.subboard[(i, j+1)]]
                 model.Add(sum(neighbors) != 4 - 4 * model.subboard[(i,j)])
         # on edges, puddles are fine, but not islands
+        print('subboard_dims', subboard_dims)
+
+        for i in range(1, subboard_dims[0] - 1):
+            neighbors = [model.subboard[(i-1, 0)], 
+                         model.subboard[(i+1, 0)], 
+                         model.subboard[(i, 1)]]
+            model.Add(sum(neighbors) - model.subboard[(i, 0)] >= 0)
+            neighbors = [model.subboard[(i-1, -1)], 
+                         model.subboard[(i+1, -1)], 
+                         model.subboard[(i, -2)]]
+            model.Add(sum(neighbors) - model.subboard[(i, -1)] >= 0)
+        for i in range(1, subboard_dims[1] - 1):
+            neighbors = [model.subboard[(0, i-1)], 
+                         model.subboard[(0, i+1)], 
+                         model.subboard[(1, i)]]
+            model.Add(sum(neighbors) - model.subboard[(0, i)] >= 0)
+            neighbors = [model.subboard[(-1, i-1)], 
+                         model.subboard[(-1, i+1)], 
+                         model.subboard[(-2, i)]]
+            model.Add(sum(neighbors) - model.subboard[(-1, i)] >= 0)
+        
+
+
     model.solution_printer = MetaPrinter(model.board, model.subboard)
 
