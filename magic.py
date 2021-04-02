@@ -9,21 +9,20 @@ from solprinters import SolPrinter
 
 class MagicModel(cp_model.CpModel):
     def __init__(self, dims, min_cell=1, **kwargs):
+        self.diagonals = kwargs.get('diagonals')
         self.dims = dims
         self.min_cell = min_cell
         cell_cnt = reduce(mul, self.dims, 1)
         self.max_cell = self.min_cell + cell_cnt - 1
-        self.diagonals = kwargs.get('diagonals')
+        twice_mean = self.min_cell + self.max_cell
+        # if twice_mean is odd, and a board_dim is odd, it's not gonna work
+        self.magic_sums = [twice_mean * board_dim // 2 for board_dim in self.dims]
+        self.board = ndlist.empty(self.dims)
+        self.board.total = twice_mean * cell_cnt // 2
         super().__init__()
         self.setup()
 
     def setup(self):
-        twice_mean = self.min_cell + self.max_cell
-        # if twice_mean is odd, and a board_dim is odd, it's not gonna work
-        self.magic_sums = [twice_mean * board_dim // 2 for board_dim in self.dims]
-        print("magic sums", self.magic_sums)
-        lines = {}
-        self.board = ndlist.empty(self.dims)
         for entry in product(*self.board.ranges):
             new_int_var = self.NewIntVar(self.min_cell, self.max_cell, repr(entry))
             self.board[entry] = new_int_var

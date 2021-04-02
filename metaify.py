@@ -15,6 +15,7 @@ def metaify(model, cell_dims, **kwargs):
     cell_size = reduce(mul, cell_dims, 1)
     subboard_dims = [model.dims[i] * cell_dims[i] for i in range(len(model.dims))]
     model.subboard = ndlist.empty(subboard_dims)
+    model.subboard.single_form = kwargs.get('single_form')
     ranges = [range(dim) for dim in subboard_dims]
     for entry in product(*ranges):
         new_int_var = model.NewIntVar(0, 1, "_" + repr(entry))
@@ -26,12 +27,10 @@ def metaify(model, cell_dims, **kwargs):
         line_ranges_by_dims.append(line_ranges)
     lines_by_dim = [[model.subboard[line] for line in product(*lrs)] 
         for lrs in line_ranges_by_dims]
-    sub_magic_sums = [msum // (cell_size // cell_dims[n]) for n, msum in enumerate(model.magic_sums)]
-    # print("subboard_dims", subboard_dims)
-    # print("sub_magic_sums", sub_magic_sums)
+    model.subboard.magic_sums = [msum // (cell_size // cell_dims[n]) for n, msum in enumerate(model.magic_sums)]
     for dim_num, lines in enumerate(lines_by_dim):
         for line in lines:
-            model.Add(sum(line) == sub_magic_sums[dim_num])
+            model.Add(sum(line) == model.subboard.magic_sums[dim_num])
     # cell constraints
     ranges = [range(dim) for dim in model.board.dims]
     for cell_index in product(*ranges):

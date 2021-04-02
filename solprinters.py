@@ -1,5 +1,6 @@
 from ortools.sat.python import cp_model
 from more_itertools import collapse
+from copy import copy
 
 class SolPrinter(cp_model.CpSolverSolutionCallback):
     def __init__(self, board, type=int, int_width=2):
@@ -32,5 +33,32 @@ class MetaPrinter(SolPrinter):
         super().__init__(board, type, int_width)
         self.subboard = subboard
     def OnSolutionCallback(self):
-        self.print_board(self.board, len(self.board.dims), int)
-        self.print_board(self.subboard, len(self.board.dims), bool)
+        # TODO: Add check for all spots in the subboard being in one polyomino
+        do_print = True
+        if self.subboard.single_form:
+            visited = set()
+            unvisited = set()
+            for i in range(self.subboard.dims[0]):
+                index = [0 for _ in self.subboard.dims]
+                index[0] = i
+                if self.Value(self.subboard[index]) == 1:
+                    unvisited.add(tuple(index))
+                    break
+            
+            while unvisited:
+                to_visit = unvisited.pop()
+                for i, dim in enumerate(self.subboard.dims):
+                    for sign in [-1, 1]:
+                        if 0 <= to_visit[i] + sign < dim: 
+                            new_index = list(to_visit)
+                            new_index[i] += sign
+                            new_index = tuple(new_index)
+                            if not new_index in visited: 
+                                if self.Value(self.subboard[new_index]):
+                                    unvisited.add(new_index)
+                visited.add(to_visit)
+            if len(visited) < self.board.total:
+                do_print = False
+        if do_print:
+            self.print_board(self.board, len(self.board.dims), int)
+            self.print_board(self.subboard, len(self.board.dims), bool)
