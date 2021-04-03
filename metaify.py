@@ -1,7 +1,6 @@
-from more_itertools.more import collapse
 from ortools.sat.python import cp_model
 from itertools import product
-from more_itertools import collapse
+from more_itertools import all_equal
 from functools import reduce
 from operator import mul
 from copy import copy
@@ -9,9 +8,11 @@ from ndlist import ndlist
 from solprinters import MetaPrinter
 
 def metaify(model, cell_dims, **kwargs):
+    diagonals = kwargs.get('diagonals')
     kitty_corners = kwargs.get('kitty_corners')
     puddleless = kwargs.get('puddleless')
     crinkles = kwargs.get('crinkles')
+    translate_swap = kwargs.get('translate_swap')
     cell_size = reduce(mul, cell_dims, 1)
     subboard_dims = [model.dims[i] * cell_dims[i] for i in range(len(model.dims))]
     model.subboard = ndlist.empty(subboard_dims)
@@ -31,6 +32,10 @@ def metaify(model, cell_dims, **kwargs):
     for dim_num, lines in enumerate(lines_by_dim):
         for line in lines:
             model.Add(sum(line) == model.subboard.magic_sums[dim_num])
+    
+    if diagonals:
+        for sign in [1, -1]:
+            model.Add(sum([model.subboard[(i, sign * i - int(sign == -1))] for i in ranges[0]]) == model.subboard.magic_sums[0])
     # cell constraints
     ranges = [range(dim) for dim in model.board.dims]
     for cell_index in product(*ranges):
@@ -81,7 +86,19 @@ def metaify(model, cell_dims, **kwargs):
                          model.subboard[(-2, i)]]
             model.Add(sum(neighbors) - model.subboard[(-1, i)] >= 0)
         
-
+        neighbors = [model.subboard[(0, 1)], model.subboard[(1, 0)]]
+        model.Add(sum(neighbors) - model.subboard[(0,0)] >= 0)
+        neighbors = [model.subboard[(-1, 1)], model.subboard[(-2, 0)]]
+        model.Add(sum(neighbors) - model.subboard[(-1,0)] >= 0)
+        neighbors = [model.subboard[(1, -1)], model.subboard[(0, -2)]]
+        model.Add(sum(neighbors) - model.subboard[(0,-1)] >= 0)
+        neighbors = [model.subboard[(-2, -1)], model.subboard[(-1, -2)]]
+        model.Add(sum(neighbors) - model.subboard[(-1,-1)] >= 0)
+    
+    if translate_swap:
+        for i in range(subboard_dims[0] // 2):
+            for j in range(subboard_dims[1]):
+                model.Add(model.subboard[(i, j)] + model.subboard[(i + subboard_dims[0] // 2), j] == 1)
 
     model.solution_printer = MetaPrinter(model.board, model.subboard)
 
