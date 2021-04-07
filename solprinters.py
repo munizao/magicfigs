@@ -32,6 +32,7 @@ class MetaPrinter(SolPrinter):
     def __init__(self, board, subboard, type=int, int_width=2):
         super().__init__(board, type, int_width)
         self.subboard = subboard
+        self.count = 0
     def OnSolutionCallback(self):
         # TODO: Add check for all spots in the subboard being in one polyomino
         do_print = True
@@ -60,5 +61,7 @@ class MetaPrinter(SolPrinter):
             if len(visited) < self.board.total:
                 do_print = False
         if do_print:
+            self.count += 1
             self.print_board(self.board, len(self.board.dims), int)
             self.print_board(self.subboard, len(self.board.dims), bool)
+            print(self.count)
