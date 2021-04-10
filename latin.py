@@ -1,10 +1,10 @@
 from itertools import product
-from genmodel import GenModel
+from genintmodel import GenIntModel
 from ndlist import ndlist
 from solprinters import SolPrinter
 
 
-class LatinModel(GenModel):
+class LatinModel(GenIntModel):
     def __init__(self, dims, min_cell=1, **kwargs):
         self.diagonals = kwargs.get('diagonals')
         self.max_cell = min_cell + max(dims) - 1
