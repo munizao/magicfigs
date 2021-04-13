@@ -28,7 +28,28 @@ class SparseModel(cp_model.CpModel):
             for i in range(self.dims[0] // 2):
                 for j in range(self.dims[1]):
                     self.Add(self.board[(i,j)] == self.board[(-i - 1, j)])
-        
+        if 'v' in self.syms:
+            for i in range(self.dims[0]):
+                for j in range(self.dims[1] // 2):
+                    self.Add(self.board[(i,j)] == self.board[(i, -j - 1)])
+
+        if 'd' in self.syms:
+            for i in range(self.dims[0]):
+                for j in range(1, i):
+                    self.Add(self.board[(i, j)] == self.board[(j, i)])
+
+        if 'e' in self.syms:
+            for i in range(self.dims[0]):
+                for j in range(self.dims[1] - i - 1):
+                    self.Add(self.board[(i, j)] == self.board[(-j - 1, -i - 1)])
+
+        if 'r' in self.syms:
+            for i in range(self.dims[0] // 2):
+                for j in range(self.dims[1] // 2):
+                    self.Add(self.board[(i,j)] == self.board[(j, -i - 1)])
+                    self.Add(self.board[(i,j)] == self.board[(-i - 1, -j - 1)])
+                    self.Add(self.board[(i,j)] == self.board[(-j - 1, i)])
+
         if 's' in self.syms: 
             for i in range(self.dims[0] // 2):
                 for j in range(self.dims[1]):
