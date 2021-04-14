@@ -11,6 +11,7 @@ class GenIntModel(cp_model.CpModel):
         self.dims = dims
         self.min_cell = min_cell
         self.cell_cnt = reduce(mul, self.dims, 1)
+        self.set_max_cell()
 
         super().__init__()
 

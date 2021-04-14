@@ -1,3 +1,4 @@
+from genintmodel import GenIntModel
 from operator import mul, eq
 from functools import reduce
 from ortools.sat.python import cp_model
@@ -7,20 +8,14 @@ from copy import copy
 from ndlist import ndlist
 from solprinters import SolPrinter
 
-class MagicModel(cp_model.CpModel):
+class MagicModel(GenIntModel):
     def __init__(self, dims, min_cell=1, **kwargs):
         self.diagonals = kwargs.get('diagonals')
-        self.dims = dims
-        self.min_cell = min_cell
-        cell_cnt = reduce(mul, self.dims, 1)
-        self.max_cell = self.min_cell + cell_cnt - 1
-        twice_mean = self.min_cell + self.max_cell
-        # if twice_mean is odd, and a board_dim is odd, it's not gonna work
-        self.magic_sums = [twice_mean * board_dim // 2 for board_dim in self.dims]
-        self.board = ndlist.empty(self.dims)
-        self.board.total = twice_mean * cell_cnt // 2
-        super().__init__()
+        super().__init__(dims, min_cell)
         self.setup()
+
+    def set_max_cell(self):
+        self.max_cell = self.min_cell + self.cell_cnt - 1
 
     def setup(self):
         for entry in product(*self.board.ranges):

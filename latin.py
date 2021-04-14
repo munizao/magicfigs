@@ -7,9 +7,11 @@ from solprinters import SolPrinter
 class LatinModel(GenIntModel):
     def __init__(self, dims, min_cell=1, **kwargs):
         self.diagonals = kwargs.get('diagonals')
-        self.max_cell = min_cell + max(dims) - 1
         super().__init__(dims, min_cell)
-    
+
+    def set_max_cell(self):
+        self.max_cell = self.min_cell + max(self.dims) - 1
+        
     def setup(self):
         for entry in product(*self.board.ranges):
             new_int_var = self.NewIntVar(self.min_cell, self.max_cell, repr(entry))
