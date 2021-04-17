@@ -31,20 +31,7 @@ class MagicModel(GenIntModel):
                 indices = [[i * sign - int(sign == -1)  for sign in signs] for i in range(self.dims[0])]
                 self.Add(sum([self.board[index] for index in indices]) == self.magic_sums[0])
         self.AddAllDifferent(collapse(self.board))
-        # Remove redundant symmetries.  (Probably still broken when only some dims are equal.)
-        origin = [0 for _ in self.dims]
-        for i in range(1, 2 ** len(self.dims)):
-            corner = [(self.dims[n] - 1) * ((i >> n) % 2) for n in range(len(self.dims))]
-            self.Add(self.board[origin] < self.board[corner])
-        if all_equal(self.dims):
-            for i, dim in enumerate(self.dims):
-                corner = copy(origin)
-                corner[i] = dim - 1
-                if i == 0:
-                    first_corner = corner
-                    continue
-                self.Add(self.board[first_corner] < self.board[corner])
-
+        self.remove_symmetries()
         self.solution_printer = SolPrinter(self.board)
 
     def solve(self, **kwargs):
