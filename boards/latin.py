@@ -1,8 +1,6 @@
 from itertools import product
 from boards.genint import GenIntBoard
-from ndlist import ndlist
 from solprinters import SolPrinter
-
 
 class LatinBoard(GenIntBoard):
     def __init__(self, dims, min_cell=1, **kwargs):

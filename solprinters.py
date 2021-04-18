@@ -14,14 +14,15 @@ class SolPrinter(cp_model.CpSolverSolutionCallback):
         self.int_width = int_width
         self.count = 0
     
-    def print_board(self, board, type=None):
+    def print_board(self, board, type=None, dim_num=None):
         if type is None:
             type = board.type
-        dim_num = len(board.dims)
+        if dim_num is None:
+            dim_num = len(board.dims)
         if dim_num >= 3:
             print('-' * dim_num)
             for subboard in board:
-                self.print_board(subboard, dim_num - 1, type)
+                self.print_board(subboard, type, dim_num - 1)
         else:
             print('--')
             for line in board:
