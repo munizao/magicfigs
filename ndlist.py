@@ -6,9 +6,12 @@ from collections.abc import Iterable
 
 class ndlist(list):
 
-    def __init__(self, l, dims):
+    def __init__(self, dims, l=None):
         self.dims = dims
         self.ranges = [range(dim) for dim in self.dims]
+        if l is None:
+            for dim in dims[::-1]:
+                l = [deepcopy(l) for _ in range(dim)]
         super().__init__(l)
 
     @classmethod
@@ -16,7 +19,7 @@ class ndlist(list):
         newlist = None
         for dim in dims[::-1]:
             newlist = [deepcopy(newlist) for _ in range(dim)]
-        newlist = cls(newlist, dims)
+        newlist = cls(dims, newlist)
         return newlist
 
     def __getitem__(self, index):
