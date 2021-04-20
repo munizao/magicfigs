@@ -7,4 +7,4 @@ def permutations_2d(matrix):
     for p1 in permutations(matrix):
         t = transpose(p1)
         for p2 in permutations(t):
-            yield transpose(p2)
+            yield type(matrix)(transpose(p2))

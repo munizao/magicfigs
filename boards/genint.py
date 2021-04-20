@@ -23,7 +23,7 @@ class GenIntBoard(ndlist):
         self.setup()
     
     def setup(self):
-        for entry in product(*self.board.ranges):
+        for entry in product(*self.ranges):
             new_int_var = self.model.NewIntVar(self.min_cell, self.max_cell, repr(entry))
             self[entry] = new_int_var
     
