@@ -1,1 +1,0 @@
-#generalized magic square generator
