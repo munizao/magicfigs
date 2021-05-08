@@ -9,18 +9,18 @@ class ndlist(list):
     def __init__(self, dims, l=None):
         self.dims = dims
         self.ranges = [range(dim) for dim in self.dims]
-        if l is None:
+        if not isinstance(l, Iterable):
             for dim in dims[::-1]:
                 l = [deepcopy(l) for _ in range(dim)]
         super().__init__(l)
 
-    @classmethod
-    def empty(cls, dims):
-        newlist = None
-        for dim in dims[::-1]:
-            newlist = [deepcopy(newlist) for _ in range(dim)]
-        newlist = cls(dims, newlist)
-        return newlist
+    # @classmethod
+    # def empty(cls, dims):
+    #     newlist = None
+    #     for dim in dims[::-1]:
+    #         newlist = [deepcopy(newlist) for _ in range(dim)]
+    #     newlist = cls(dims, newlist)
+    #     return newlist
 
     def __getitem__(self, index):
         if isinstance(index, Iterable):
