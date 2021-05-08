@@ -1,10 +1,9 @@
 import sys
 sys.path.append('./')
 
-from perms2d import permutations_2d
-from metamagic import solve_metamagic
+# from perms2d import permutations_2d
 from boards.literal import LiteralBoard
-from metaify import metaify
+from transforms.metaify import metaify
 
 meta_board_proto = LiteralBoard([
     [6, 3, 8, 1],

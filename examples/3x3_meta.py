@@ -1,7 +1,7 @@
 import sys
 sys.path.append('./')
 
-from metaify import metaify
+from transforms.metaify import metaify
 from boards.magic import MagicBoard
 
 board = MagicBoard((3, 3), diagonals=True)

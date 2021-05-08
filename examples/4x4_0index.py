@@ -1,7 +1,7 @@
 import sys
 sys.path.append('./')
 
-from metaify import metaify
+from transforms.metaify import metaify
 from boards.magic import MagicBoard
 
 # Zero-indexed 4×4 magic squares can be used as a basis for sparse squares where 

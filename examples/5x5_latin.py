@@ -1,6 +1,6 @@
 import sys
 sys.path.append('./')
-from metaify import metaify
+from transforms.metaify import metaify
 from boards.latin import LatinBoard
 
 board = LatinBoard((5, 5), min_cell=0)
